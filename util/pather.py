@@ -32,7 +32,8 @@ def create(path, clear=False):
     if ext == "":
         # No extension, this is supposed to be a directory.
         if os.path.exists(path) and clear:
-            shutil.rmtree(path)
+            if path != ".":  # Do NOT attempt to remove the root directory.
+                shutil.rmtree(path)
 
         if not os.path.exists(path):
             os.mkdir(path)
