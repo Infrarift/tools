@@ -7,6 +7,9 @@ Meant to be used as a super-class, to load in attributes from the environment.
 
 import json
 import os
+
+from dotenv import load_dotenv
+
 from tools.util.logger import Logger
 
 __author__ = "Jakrin Juangbhanich"
@@ -16,12 +19,23 @@ __version__ = "0.0.0"
 
 
 class Settings:
+
+    DOT_ENV_LOADED: bool = False
+
     def __init__(self):
         pass
+
+    @staticmethod
+    def _load_dotenv():
+        """ Load the default .env file if it hasn't already been loaded."""
+        if Settings.DOT_ENV_LOADED:
+            return
+        load_dotenv(dotenv_path=".env")
 
     def load(self):
         """ Look for the matching attributes in the .env and set them here. """
 
+        self._load_dotenv()
         Logger.log_special("Load Settings for {}".format(self.__class__.__name__), with_gap=True)
 
         for attribute in self.__dict__:
