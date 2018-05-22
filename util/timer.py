@@ -108,8 +108,11 @@ class Timer:
         duration = time_object.duration
         if count_units:
             duration /= time_object.count
-        Logger.log_field("(Timer) {} ({} Units)"
-                         .format(time_object.key, time_object.count), "{:.2f}s".format(duration))
+
+        time_header = "(Timer) {}"
+        if time_object.count > 1:
+            time_header += " ({} Units)"
+        Logger.log_field(time_header.format(time_object.key, time_object.count), "{:.2f}s".format(duration))
         time_object.reset()
 
     def _reset(self, key: str):
