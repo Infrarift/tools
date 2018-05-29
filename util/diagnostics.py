@@ -14,9 +14,14 @@ __email__ = "juangbhanich.k@gmail.com"
 
 
 def show_size(name, obj):
-    encoded_str = json.dumps(obj)
-    str_size = len(encoded_str.encode("utf-8"))
-    readable_size = sizeof_fmt(str_size)
+
+    if type(obj) is str:
+        encoded_str = json.dumps(obj)
+        obj_size = len(encoded_str.encode("utf-8"))
+    else:
+        obj_size = len(obj)
+
+    readable_size = sizeof_fmt(obj_size)
     Logger.log_field("Size of {}".format(name), readable_size)
 
 
