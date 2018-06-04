@@ -171,6 +171,10 @@ class Region:
     def height(self, value):
         self._height = value
         self._calibrate_to_xy()
+
+    @property
+    def area(self):
+        return self.width * self.height
     
 
 
