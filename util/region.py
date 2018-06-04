@@ -175,6 +175,11 @@ class Region:
     @property
     def area(self):
         return self.width * self.height
+
+    def clone(self) -> 'Region':
+        region = Region()
+        region.set_rect(self.left, self.right, self.top, self.bottom)
+        return region
     
 
 
