@@ -4,9 +4,9 @@
 recorder-node | diagnostics | 22/05/18
 <Description>
 """
-import json
 
-from tools.util.logger import Logger
+import json
+from .logger import Logger
 
 __author__ = "Jakrin Juangbhanich"
 __copyright__ = "Copyright 2018, GenVis Pty Ltd."
@@ -14,9 +14,10 @@ __email__ = "juangbhanich.k@gmail.com"
 
 
 def show_size(name, obj):
+
     encoded_str = json.dumps(obj)
-    str_size = len(encoded_str.encode("utf-8"))
-    readable_size = sizeof_fmt(str_size)
+    obj_size = len(encoded_str.encode("utf-8"))
+    readable_size = sizeof_fmt(obj_size)
     Logger.log_field("Size of {}".format(name), readable_size)
 
 
