@@ -129,12 +129,23 @@ class Logger:
         """ Create an animate a progress bar."""
         Logger.get_instance()._log_progress(percent, header, suffix, extra_indent)
 
+    @staticmethod
+    def enable_colors():
+        """ Turn on color tags. """
+        Logger.get_instance()._color_enabled = True
+
+    @staticmethod
+    def disable_colors():
+        """ Turn off color tags. """
+        Logger.get_instance()._color_enabled = False
+
     # ==================================================================================================================
     # Private Methods --------------------------------------------------------------------------------------------------
     # ==================================================================================================================
 
     def __init__(self):
         self._indent_level = 0
+        self._color_enabled = True
         Logger._INSTANCE = self
 
     def _log_progress(self, percent, header, suffix, extra_indent=1):
@@ -203,7 +214,10 @@ class Logger:
         return final_str
 
     def _set_color(self, text, color):
-        return color + text + self.DEFAULT_COLOR
+        if self._color_enabled:
+            return color + text + self.DEFAULT_COLOR
+        else:
+            return text
 
     @staticmethod
     def _print(message, error=False):
