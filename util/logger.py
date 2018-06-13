@@ -16,7 +16,18 @@ __copyright__ = "Copyright 2018, Jakrin Juangbhanich"
 __email__ = "juangbhanich.k@gmail.com"
 
 
+def non_minimal(f):
+    """ Decorator for a logging function that only executes when the logger is not in minimal mode. """
+    def func_wrapper(*args, **kwargs):
+        if Logger.get_instance().minimal_mode:
+            return args[1]
+        return f(*args, **kwargs)
+    return func_wrapper
+
+
 class Logger:
+
+    # TODO: Use a decorator for the minimal checking?
 
     # Character constants (tab, ruler, etc).
     INDENT_CHAR = "   "
@@ -139,6 +150,16 @@ class Logger:
         """ Turn off color tags. """
         Logger.get_instance()._color_enabled = False
 
+    @staticmethod
+    def enable_minimal_mode():
+        """ Turn on minimal mode. """
+        Logger.get_instance().minimal_mode = True
+
+    @staticmethod
+    def disable_minimal_mode():
+        """ Turn off minimal mode. """
+        Logger.get_instance().minimal_mode = False
+
     # ==================================================================================================================
     # Private Methods --------------------------------------------------------------------------------------------------
     # ==================================================================================================================
@@ -146,7 +167,12 @@ class Logger:
     def __init__(self):
         self._indent_level = 0
         self._color_enabled = True
+        self.minimal_mode = False  # Minimal mode disables headers, indents, progress, colors.
         Logger._INSTANCE = self
+
+    @property
+    def color_enabled(self):
+        return self._color_enabled and not self.minimal_mode
 
     def _log_progress(self, percent, header, suffix, extra_indent=1):
 
@@ -176,12 +202,16 @@ class Logger:
 
         # Put it all together.
         formatted_percent = "{:.1f}%".format(percent * 100)
-        message = "{} {} {} {}".format(header, bar, formatted_percent, suffix)
-        message = self._add_format(message, extra_indent)
-        message = "\r{}".format(message)
-        print(message, end="\r")
-        if percent == 1.0:
-            print("")
+
+        if self.minimal_mode:
+            self._print("{} {} {}".format(header, formatted_percent, suffix))
+        else:
+            message = "{} {} {} {}".format(header, bar, formatted_percent, suffix)
+            message = self._add_format(message, extra_indent)
+            message = "\r{}".format(message)
+            print(message, end="\r")
+            if percent == 1.0:
+                print("")
 
     def _log_field(self, field_name, value, red=False, extra_indent=1):
         field_name = self._set_color("{}:".format(field_name), Logger.BLUE)
@@ -195,9 +225,17 @@ class Logger:
         self._print(self._add_format(message), error)
 
     def _add_format(self, message, extra_indent=0):
-        message = (extra_indent + self._indent_level) * self.INDENT_CHAR + message
-        output = self._get_header() + message
-        return output
+        message = self._add_indent(message, extra_indent)
+        message = self._add_header(message)
+        return message
+
+    @non_minimal
+    def _add_indent(self, message, extra_indent):
+        return (extra_indent + self._indent_level) * self.INDENT_CHAR + message
+
+    @non_minimal
+    def _add_header(self, message):
+        return self._get_header() + message
 
     def _get_header(self):
         header = "{} | ".format(self._get_readable_time(time.localtime()))
@@ -214,7 +252,7 @@ class Logger:
         return final_str
 
     def _set_color(self, text, color):
-        if self._color_enabled:
+        if self.color_enabled:
             return color + text + self.DEFAULT_COLOR
         else:
             return text
@@ -230,6 +268,10 @@ class Logger:
 
     @staticmethod
     def _pre_fill(string, length=2, char='0'):
+        """ Pad the input string with a fixed amount of chars to the front. """
+
+        # Note: Though this exists in another file, I keep a hard-written version
+        # here in case I want to import the logger by itself.
         string = str(string)
         while len(string) < length:
             string = char + string
