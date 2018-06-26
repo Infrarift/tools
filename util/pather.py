@@ -5,6 +5,7 @@ Use this tool to create, clear, or guarantee that paths exist.
 """
 
 import os
+import pathlib
 import shutil
 
 __author__ = "Jakrin Juangbhanich"
@@ -23,8 +24,12 @@ def create(path, clear=False):
 def _create(path, clear, is_true_tail):
     head, tail = os.path.split(path)
 
+    # This is the home directory. End it.
+    if head == "/" and tail == "":
+        return
+
     # Recursively create the heads.
-    if head != "":
+    if head != "" and head != "~":
         _create(head, clear, is_true_tail=False)
 
     base, ext = os.path.splitext(tail)
@@ -36,4 +41,4 @@ def _create(path, clear, is_true_tail):
                 shutil.rmtree(path)
 
         if not os.path.exists(path):
-            os.mkdir(path)
+            pathlib.Path(path).mkdir(parents=True, exist_ok=True)
