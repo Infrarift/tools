@@ -89,7 +89,7 @@ def create_v2_text_box(text: str, width: int, height: int,
 
 
 def draw_icon(image, icon, x=None, y=None, size=24, h_align=ALIGN_CENTER, pad: int=0):
-    icon_image = write_to_image(image, icon, font_size=size, font_type=FONT_ICON,
+    icon_image = write_to_image(image, icon, font_size=size, font_type=FONT_ICON, x=x, y=y,
                                 h_align=h_align, pad=pad)
     return icon_image
 
@@ -221,6 +221,7 @@ def write_to_image2(image: np.array,
 def write_to_image(image: np.array,
                    text: str,
                    x_offset: int = 0,
+                   x: int = None,
                    y: int = None,
                    color=(255, 255, 255),
                    h_align: int = ALIGN_CENTER,
@@ -245,7 +246,7 @@ def write_to_image(image: np.array,
         y = frame_height // 2
 
     # Position the text.
-    anchor_x = _get_aligned_anchor(frame_width, text_width, h_align, pad) + x_offset
+    anchor_x = _get_aligned_anchor(frame_width, text_width, h_align, pad, x) + x_offset
     anchor_y = y - text_height / fy_offset  # Because text bounding box isn't great, small height offset.
     d.text((anchor_x, anchor_y), text, font=font, fill=(color[2], color[1], color[0]))
 
@@ -263,17 +264,23 @@ def write_to_image(image: np.array,
     return final_image
 
 
-def _get_aligned_anchor(frame_size: int, text_size: int, align: int, pad: int = 0) -> int:
+def _get_aligned_anchor(frame_size: int, text_size: int, align: int, pad: int = 0, position: int = None) -> int:
     """ Find the text anchor position. """
 
     if align == ALIGN_CENTER:
-        return (frame_size - text_size) // 2
+        if position is None:
+            position = frame_size // 2
+        return position - text_size // 2
 
     if align == ALIGN_LEFT:
-        return pad
+        if position is None:
+            position = 0
+        return position + pad
 
     if align == ALIGN_RIGHT:
-        return frame_size - text_size - pad
+        if position is None:
+            position = frame_size
+        return position - text_size - pad
 
 
 def _cropped_extraction(image: np.array, left: int, right: int, top: int, bottom: int):

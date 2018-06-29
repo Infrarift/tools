@@ -41,6 +41,13 @@ if __name__ == "__main__":
     image = text.draw_icon(image, u"\uf447", size=42)
     show(image)
 
+    image = np.copy(base_image)
+    image = text.draw_icon(image, u"\uf447", size=42, y=20)
+    image = text.draw_icon(image, u"\uf447", size=42, y=70)
+    image = text.draw_icon(image, u"\uf447", size=42, y=120)
+    image = text.draw_icon(image, u"\uf447", size=42, y=170)
+    show(image)
+
     # ======================================================================================================================
     # Creating simple text boxes without an image context.
     # ======================================================================================================================
