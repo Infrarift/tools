@@ -7,15 +7,11 @@ Meant to be used as a super-class, to load in attributes from the environment.
 
 import json
 import os
-
 from dotenv import load_dotenv
-
-from tools.util.logger import Logger
+from .logger import Logger
 
 __author__ = "Jakrin Juangbhanich"
-__copyright__ = "Copyright 2018, GenVis Pty Ltd."
 __email__ = "juangbhanich.k@gmail.com"
-__version__ = "0.0.0"
 
 
 class Settings:

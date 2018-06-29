@@ -1,18 +1,13 @@
 # -*- coding: utf-8 -*-
 
 """
-A Sighting is a collection of Samples, believed to be from the same person. Generally, a Sighting is also limited to
-some time horizon. Usually a couple of minutes. So the same person, seen at different times, will be considered at two
-different sightings. Sightings also have utility functions to prepare them for upload, and to maintain a sorted order
-for the samples based on quality scores.
+Logger Description.
 """
 
-from __future__ import print_function
 import time
 import sys
 
 __author__ = "Jakrin Juangbhanich"
-__copyright__ = "Copyright 2018, Jakrin Juangbhanich"
 __email__ = "juangbhanich.k@gmail.com"
 
 

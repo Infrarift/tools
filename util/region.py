@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 
 """
-tools| region | 20/04/18
 A region is essentially a rectangle with some extra functionality. I've made it so the attributes will update each other.
 """
 
 __author__ = "Jakrin Juangbhanich"
 __email__ = "juangbhanich.k@gmail.com"
-__version__ = "1.0.0"
 
 
 class Region:

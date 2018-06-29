@@ -5,18 +5,11 @@ clustering-research | timer | 12/04/18
 <ENTER SCRIPT DESCRIPTION>
 """
 
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
 import time
 from .logger import Logger
 
 __author__ = "Jakrin Juangbhanich"
-__copyright__ = "Copyright 2018, GenVis Pty Ltd."
 __email__ = "juangbhanich.k@gmail.com"
-
-
-# GitHub: https://github.com/Infrarift
 
 
 class TimeObject:

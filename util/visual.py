@@ -3,13 +3,12 @@
 """
 Library to do some cool visual stuff.
 """
-from typing import List, Tuple
 
+from typing import List, Tuple
 import cv2
 import numpy as np
 import colorsys
-
-from tools.util.region import Region
+from .region import Region
 
 __author__ = "Jakrin Juangbhanich"
 __email__ = "juangbhanich.k@gmail.com"
@@ -127,14 +126,13 @@ def draw_bar_segment(image, p_start: float, p_end: float, x: int, y: int, width:
 # Advanced Text.
 # ======================================================================================================================
 
-def create_v2_text_box():
-    pass
 
 # ======================================================================================================================
 # Text Tools.
 # ======================================================================================================================
 
 # TODO: Split into box-align, text-align, etc.
+
 
 ALIGN_CENTER: int = 0
 ALIGN_LEFT: int = -1

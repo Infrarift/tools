@@ -9,7 +9,6 @@ import pathlib
 import shutil
 
 __author__ = "Jakrin Juangbhanich"
-__copyright__ = "Copyright 2018, GenVis Pty Ltd."
 __email__ = "juangbhanich.k@gmail.com"
 
 
