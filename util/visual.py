@@ -62,7 +62,7 @@ def draw_regions(image: np.array,
     return image
 
 
-def pixelate_region(image: np.array, regions: Region):
+def pixelate_region(image: np.array, regions: List[Region]):
     blur_factor = 0.1
 
     for r in regions:
