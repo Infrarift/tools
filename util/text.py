@@ -8,8 +8,8 @@ from typing import List, Tuple, Dict
 import cv2
 import numpy as np
 from PIL import Image, ImageFont, ImageDraw
-
-from util.region import Region
+from . import visual
+from .region import Region
 
 __author__ = "Jakrin Juangbhanich"
 __copyright__ = "Copyright 2018, GenVis Pty Ltd."
@@ -181,7 +181,7 @@ def write_to_image2(image: np.array,
     bottom = top + height
 
     # Create a sub-image to draw on.
-    sub_image = _cropped_extraction(image, left, right, top, bottom)
+    sub_image = visual.safe_extract(image, left, right, top, bottom)
 
     # Set the BG Color.
     if bg_color is not None and bg_opacity > 0:
@@ -213,7 +213,7 @@ def write_to_image2(image: np.array,
                                         text=text, color=color, h_align=h_align, pad=pad, font_size=font_size,
                                         x_offset=x_offset)
 
-    image = _safe_copy(image, text_image, left, right, top, bottom)
+    image = visual.safe_implant(image, text_image, left, right, top, bottom)
     # cv2.rectangle(image, (left, top), (right, bottom), color=(50, 50, 50), thickness=1)
     return image
 
@@ -282,40 +282,3 @@ def _get_aligned_anchor(frame_size: int, text_size: int, align: int, pad: int = 
             position = frame_size
         return position - text_size - pad
 
-
-def _cropped_extraction(image: np.array, left: int, right: int, top: int, bottom: int):
-
-    w = image.shape[1]
-    h = image.shape[0]
-
-    safe_left = max(0, left)
-    left_excess = safe_left - left
-    safe_right = min(w, right)
-
-    safe_top = max(0, top)
-    top_excess = safe_top - top
-    safe_bottom = min(h, bottom)
-
-    extracted_image = image[safe_top:safe_bottom, safe_left:safe_right]
-    filler = np.zeros((bottom-top, right-left, 3), dtype=np.uint8)
-    filler[top_excess:top_excess + safe_bottom, left_excess:left_excess + safe_right] = extracted_image
-
-    return filler
-
-
-def _safe_copy(image: np.array, copy_image: np.array, left: int, right: int, top: int, bottom: int):
-
-    w = image.shape[1]
-    h = image.shape[0]
-
-    safe_left = max(0, left)
-    left_excess = safe_left - left
-    safe_right = min(w, right)
-
-    safe_top = max(0, top)
-    top_excess = safe_top - top
-    safe_bottom = min(h, bottom)
-
-    image[safe_top:safe_bottom, safe_left:safe_right] = \
-        copy_image[top_excess:top_excess + safe_bottom, left_excess:left_excess + safe_right]
-    return image

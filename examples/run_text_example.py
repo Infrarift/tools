@@ -4,6 +4,8 @@
 """
 <Description>
 """
+import os
+
 import cv2
 
 from util import text
@@ -28,6 +30,10 @@ if __name__ == "__main__":
     Logger.log_field("Version", __version__)
 
     base_image = np.zeros((200, 300, 3), dtype=np.uint8)
+
+    image = np.copy(base_image)
+    image = text.write_to_image2(image=image, text="Clipped", x=0, y=0)
+    show(image)
 
     image = np.copy(base_image)
     image = text.write_to_image2(image=image, text="Hello World")
@@ -82,7 +88,8 @@ if __name__ == "__main__":
     # Drawing onto an existing image.
     # ======================================================================================================================
 
-    base_image = cv2.imread("resources/stars.jpeg")  # np.zeros((800, 600, 3), dtype=np.uint8)
+    file_path = f"{os.path.dirname(__file__)}/resources/stars.jpeg"
+    base_image = cv2.imread(file_path)  # np.zeros((800, 600, 3), dtype=np.uint8)
 
     image = np.copy(base_image)
     image = text.write_to_image2(image=image, text="Opacity BG", bg_opacity=0.5)

@@ -39,10 +39,9 @@ def generate_colors(n, saturation: float = 1.0, brightness: float = 1.0):
 def draw_regions(image: np.array,
                  regions: List[Region],
                  color=(255, 255, 255),
-                 thickness: int=2,
-                 overlay: bool=False,
-                 strength: float=1.0):
-
+                 thickness: int = 2,
+                 overlay: bool = False,
+                 strength: float = 1.0):
     target_image = image
 
     if overlay:
@@ -122,54 +121,54 @@ def draw_bar_segment(image, p_start: float, p_end: float, x: int, y: int, width:
     cv2.rectangle(image, (p_x, y), (p_x + p_width, y + height), color, thickness=-1)
 
 
-# ======================================================================================================================
-# Advanced Text.
-# ======================================================================================================================
+# ===================================================================================================
+# 2D Image Slice Helpers.
+# ===================================================================================================
 
 
-# ======================================================================================================================
-# Text Tools.
-# ======================================================================================================================
-
-# TODO: Split into box-align, text-align, etc.
-
-
-ALIGN_CENTER: int = 0
-ALIGN_LEFT: int = -1
-ALIGN_RIGHT: int = 1
+def _get_safe_bounds(near: int, far: int, max_bound: int) -> (int, int, int):
+    """ Finds the near/far bounds (such as left, right) for a certain max bound (width, etc). """
+    safe_near = max(0, near)
+    safe_far = min(max_bound, far)
+    near_excess = safe_near - near
+    return safe_near, safe_far, near_excess
 
 
-def create_text_box(image: np.array,
-                    text: str,
-                    x: int, y: int, width: int, height: int,
-                    text_color=(255, 255, 255), bg_color=(0, 0, 0),
-                    centered: bool = False):
-    """ Create a text box, with the text written in the center."""
+def safe_extract(image: np.array, left: int, right: int, top: int, bottom: int):
+    """ Extract the specified area from the image, padding the over-cropped areas with black.
+    Assumes a np.array (CV2 image) input format. """
 
-    # Find the corners of the box that we want to draw.
-    if centered:
-        bot_left = (x - width // 2, y + height // 2)
-        top_right = (x + width // 2, y - height // 2)
-    else:
-        bot_left = (x, y + height)
-        top_right = (x + width, y)
+    # Get the extraction area.
+    safe_left, safe_right, left_excess = _get_safe_bounds(left, right, image.shape[1])
+    safe_top, safe_bottom, top_excess = _get_safe_bounds(top, bottom, image.shape[0])
 
-    # Create a black BG plate for the text.
-    cv2.rectangle(image, bot_left, top_right, color=bg_color, thickness=-1)
+    # Extract the image.
+    extracted_image = image[safe_top:safe_bottom, safe_left:safe_right]
 
-    # Assign the font and get the boundary of the text.
-    font = cv2.FONT_HERSHEY_PLAIN
-    text_size = cv2.getTextSize(text, font, 1, 1)[0]
+    # Fill the excess area with black.
+    filler = np.zeros((bottom - top, right - left, 3), dtype=np.uint8)
+    filler[top_excess:top_excess + safe_bottom, left_excess:left_excess + safe_right] = extracted_image
+    return filler
 
-    # Get the text co-ordinates based on the boundary.
-    if centered:
-        # Center align the text content.
-        tx = (width - text_size[0]) // 2 + (x - width // 2)
-        ty = (height + text_size[1]) // 2 + (y - height // 2)
-    else:
-        # Left pad the text content.
-        tx = x + 10
-        ty = (height + text_size[1]) // 2 + y
 
-    # Add the text, centered to the area.
-    cv2.putText(image, text, (tx, ty), font, 1, text_color)
+def safe_implant(dst_image: np.array, src_image: np.array, left: int, right: int, top: int, bottom: int):
+    """ Plant the area from the src image into the dst image. """
+
+    # Get the extraction area.
+    safe_left, safe_right, left_excess = _get_safe_bounds(left, right, dst_image.shape[1])
+    safe_top, safe_bottom, top_excess = _get_safe_bounds(top, bottom, dst_image.shape[0])
+
+    dst_image[safe_top:safe_bottom, safe_left:safe_right] = \
+        src_image[top_excess:top_excess + safe_bottom, left_excess:left_excess + safe_right]
+
+    return dst_image
+
+
+def safe_extract_with_region(image: np.array, region: Region) -> np.array:
+    """ Extract the image area specified by the region. """
+    return safe_extract(image, region.left, region.right, region.top, region.bottom)
+
+
+def safe_implant_with_region(dst_image: np.array, src_image: np.array, region: Region) -> np.array:
+    """ Plant the area from the src image into the dst image. """
+    return safe_implant(dst_image, src_image, region.left, region.right, region.top, region.bottom)
