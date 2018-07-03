@@ -28,6 +28,9 @@ class Region:
         # Initialize
         self.set_rect(left, right, top, bottom)
 
+    def __repr__(self):
+        return f"[Region x: {self.x} y: {self.y} width: {self.width} height: {self.height}]"
+
     # ===============================================================================================================================
     # Functions to set the attributes explicitly.
     # ===============================================================================================================================
