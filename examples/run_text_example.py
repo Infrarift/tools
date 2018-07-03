@@ -20,9 +20,126 @@ __email__ = "juangbhanich.k@gmail.com"
 __version__ = "0.1.0"
 
 
-def show(win_image: np.array):
-    cv2.imshow("Text Demo", win_image)
-    cv2.waitKey(-1)
+def show_image(text_function):
+    """ Decorator to copy the input image, process it, and then show it in a window. """
+
+    def func_wrapper(original_image, text_display: str):
+        new_image = np.copy(original_image)
+        new_image = text_function(new_image, text_display)
+        cv2.imshow("Text Demo", new_image)
+        cv2.waitKey(-1)
+
+    return func_wrapper
+
+
+def create_region_with_padding(image: np.array, pad: int):
+    region: Region = Region(left=pad, right=image.shape[1] - pad,
+                            top=pad, bottom=image.shape[0] - pad)
+    return region
+
+
+@show_image
+def plain_text(image: np.array, display_text: str):
+    """ Render a text straight onto the image at the x and y position. """
+    return text.write_to_image_raw(image=image, text=display_text, x=0, y=0)
+
+
+# ======================================================================================================================
+# Region based text rendering.
+# ======================================================================================================================
+
+@show_image
+def region_text(image: np.array, display_text: str):
+    """ Write text into the specified region, with the anchor. """
+    region = create_region_with_padding(image, 15)
+    return text.write_into_region(image=image,
+                                  text=display_text,
+                                  region=region,
+                                  show_region_outline=True)
+
+
+@show_image
+def region_text_left(image: np.array, display_text: str):
+    """ Write text into the specified region, with the anchor. """
+    region = create_region_with_padding(image, 15)
+    return text.write_into_region(image=image,
+                                  text=display_text,
+                                  region=region,
+                                  pad=15,
+                                  h_align=text.ALIGN_LEFT,
+                                  show_region_outline=True)
+
+
+@show_image
+def region_with_bg(image: np.array, display_text: str):
+    """ Write text into the specified region, with a solid BG. """
+    region = create_region_with_padding(image, 15)
+    return text.write_into_region(image=image,
+                                  text=display_text,
+                                  region=region,
+                                  bg_color=(0, 0, 0))
+
+
+@show_image
+def region_with_clear_bg(image: np.array, display_text: str):
+    """ Write text into the specified region, with a transparent BG. """
+    region = create_region_with_padding(image, 15)
+    return text.write_into_region(image=image,
+                                  text=display_text,
+                                  region=region,
+                                  bg_color=(0, 0, 0),
+                                  bg_opacity=0.5)
+
+
+# ======================================================================================================================
+# Icons.
+# ======================================================================================================================
+
+
+@show_image
+def icon_raw(image: np.array, display_text: str):
+    return text.write_icon_raw(image, display_text, x=0, y=0, font_size=48)
+
+
+@show_image
+def inline_icon_left(image: np.array, display_text: str):
+    """ Write text into the specified region, with a transparent BG. """
+    region = create_region_with_padding(image, 15)
+    return text.write_into_region(image=image,
+                                  text=display_text,
+                                  region=region,
+                                  icon=u"\uf447",
+                                  pad=12,
+                                  h_align=text.ALIGN_LEFT,
+                                  show_region_outline=True)
+
+
+@show_image
+def inline_icon_center(image: np.array, display_text: str):
+    """ Write text into the specified region, with a transparent BG. """
+    region = create_region_with_padding(image, 15)
+    return text.write_into_region(image=image,
+                                  text=display_text,
+                                  region=region,
+                                  icon=u"\uf447",
+                                  pad=12,
+                                  show_region_outline=True)
+
+
+# ======================================================================================================================
+# Location based anchoring.
+# ======================================================================================================================
+
+
+@show_image
+def write_centered_position(image: np.array, display_text: str):
+    """ Write text into the specified region, with a transparent BG. """
+    return text.write_centered_at(image=image, text=display_text, x=150, y=100, pad=15, bg_color=(0, 0, 0))
+
+
+# ======================================================================================================================
+# Run the script.
+# ======================================================================================================================
 
 
 if __name__ == "__main__":
@@ -33,11 +150,30 @@ if __name__ == "__main__":
     # New Version.
     # ===================================================================================================
 
-    base_image = np.zeros((200, 300, 3), dtype=np.uint8)
+    # Load the default image to draw on.
+    module_dir = os.path.dirname(__file__)
+    file_path = f"{module_dir}/resources/stars.jpeg"
+    base_image = cv2.imread(file_path)
 
-    image = np.copy(base_image)
-    image = text.write_to_image_raw(image=image, text="Clipped", x=0, y=100)
-    show(image)
+    plain_text(base_image, "Plain Text")
+    region_text(base_image, "Region Centered")
+    region_text_left(base_image, "Region Left")
+    region_with_bg(base_image, "Region With BG")
+    region_with_clear_bg(base_image, "Clear BG")
+    icon_raw(base_image, u"\uf447")
+    inline_icon_left(base_image, "Left Inline Icon")
+    inline_icon_center(base_image, "Center Inline Icon")
+    write_centered_position(base_image, "Centered at Position")
+
+    # Draw an icon in any position.
+
+    # Overlay a text.
+
+    # Anchor a container to a specific part of the image (center, top, left, etc).
+
+    # Specify text position with corner align or center align.
+
+    # Region labelling.
 
     # ===================================================================================================
     # Legacy.
