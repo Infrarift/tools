@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 
 """
-<Description>
+Draw good looking text to Cv2/Numpy images. Cv2's default text renderer is a bit ugly. I can't
+specify the font, and not all sizes look great. Here I use PIL with Cv2 to get ttf fonts into the jam,
+and also include support for the FontAwesome icon fonts.
 """
+
 import os
 from typing import List, Tuple, Dict
 import cv2
@@ -12,7 +15,6 @@ from . import visual
 from .region import Region
 
 __author__ = "Jakrin Juangbhanich"
-__copyright__ = "Copyright 2018, GenVis Pty Ltd."
 __email__ = "juangbhanich.k@gmail.com"
 
 # ======================================================================================================================
@@ -34,6 +36,10 @@ FONT_ICON = "ICON"
 
 
 class TextManager:
+
+    # TODO: I might want to create a way to custom initialize this Singleton.
+    # Then I can maybe specify things like custom fonts, etc.
+
     INSTANCE = None
 
     def __init__(self):
@@ -68,10 +74,9 @@ class TextManager:
             font_dict[font_type] = ImageFont.truetype(font_path, size)
 
 
-def get_text_size(text: str, font_type: str=FONT_DEFAULT, font_size: int=16):
-    """ Returns the width and height for this text. """
-    font = TextManager.get_font(font_type=font_type, font_size_id=font_size)
-    return font.getsize(text)
+# ===================================================================================================
+# Higher level text rendering functions.
+# ===================================================================================================
 
 
 def create_v2_text_box(text: str, width: int, height: int,
@@ -124,6 +129,41 @@ def write_to_region(image: np.array,
 
     return write_image
 
+# ===================================================================================================
+# Low level text rendering function.
+# ===================================================================================================
+
+
+def write_to_image_raw(
+        image: np.array,
+        text: str,
+        x: int,
+        y: int,
+        font_type: str = FONT_DEFAULT,
+        font_size: int = 18,
+        color=(255, 255, 255)
+):
+    """ Draw the specified text into the image at the point of the region. """
+
+    # Convert image from CV2 to PIL.
+    pil_image, pil_draw = _cv2_to_pil(image)
+
+    # Prepare the font.
+    font = TextManager.get_font(font_type=font_type, font_size_id=font_size)
+    text_width, text_height = font.getsize(text)
+    fy_offset = 2 if font_type == FONT_ICON else 1.8
+
+    # Prepare the anchors.
+    anchor_x = x
+    anchor_y = y - text_height / fy_offset
+
+    # Draw the text straight into the region.
+    pil_draw.text((anchor_x, anchor_y), text, font=font, fill=(color[2], color[1], color[0]))
+
+    # Convert image from PIL back to CV2.
+    final_image = _pil_to_cv2(pil_image)
+    return final_image
+
 
 def write_to_image2(image: np.array,
                     text: str,
@@ -131,9 +171,9 @@ def write_to_image2(image: np.array,
                     y: int = None,
                     width: int = None,
                     height: int = None,
-                    icon: str = None,
                     h_align: int = ALIGN_CENTER,
                     pad: int = 10,
+                    font_type: str = FONT_DEFAULT,
                     font_size: int = 18,
                     color=(255, 255, 255),
                     bg_color=(0, 0, 0),
@@ -262,6 +302,32 @@ def write_to_image(image: np.array,
 
         cv2.rectangle(final_image, (x1, y1), (x2, y2), color=(0, 255, 0), thickness=1)
     return final_image
+
+
+# ===================================================================================================
+# Support Functions.
+# ===================================================================================================
+
+
+def _cv2_to_pil(image: np.array) -> (Image, ImageDraw):
+    """ Convert from a PIL ImageDraw to Cv2 Numpy. """
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    pil_image = Image.fromarray(image)
+    image_draw = ImageDraw.Draw(pil_image)
+    return pil_image, image_draw
+
+
+def _pil_to_cv2(image: Image) -> np.array:
+    """ Convert from a PIL ImageDraw back to Cv2 Numpy. """
+    out_image = np.array(image)
+    out_image = cv2.cvtColor(out_image, cv2.COLOR_RGB2BGR)
+    return out_image
+
+
+def get_text_size(text: str, font_type: str=FONT_DEFAULT, font_size: int=16):
+    """ Returns the width and height for this text, font and size. """
+    font = TextManager.get_font(font_type=font_type, font_size_id=font_size)
+    return font.getsize(text)
 
 
 def _get_aligned_anchor(frame_size: int, text_size: int, align: int, pad: int = 0, position: int = None) -> int:
