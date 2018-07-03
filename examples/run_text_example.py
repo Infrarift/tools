@@ -220,9 +220,9 @@ def overlay_text(image: np.array, display_text: str):
 @show_image
 def region_label(image: np.array, display_text: str):
     """ Write text into the specified region, with the anchor. """
-    region = Region(200, 600, 200, 400)
+    region = Region(100, 500, 300, 400)
     cv2.rectangle(image, (region.left, region.top), (region.right, region.bottom), color=(0, 255, 0), thickness=1)
-    return text.label_region(image=image, text=display_text, region=region, overlay=True, icon=u"\uf447")
+    return text.label_region(image=image, text=display_text, region=region, icon=u"\uf447", show_at_bottom=True)
 
 # ======================================================================================================================
 # Run the script.
