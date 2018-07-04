@@ -56,6 +56,12 @@ class TextManager:
             FONT_ICON: "fa-solid-900.ttf"
         }
 
+        self.font_divisor_map: Dict[str, float] = {
+            # Some fonts need a bit more y-offset to look vertically aligned.
+            FONT_DEFAULT: 1.7,
+            FONT_ICON: 2.0
+        }
+
     @staticmethod
     def instance() -> 'TextManager':
         if TextManager.INSTANCE is None:
@@ -67,6 +73,11 @@ class TextManager:
         text_manager = TextManager.instance()
         text_manager._load_font(font_type, font_size_id)
         return text_manager.fonts_by_size[font_size_id][font_type]
+
+    @staticmethod
+    def get_font_divisor(font_type: str = FONT_DEFAULT) -> float:
+        text_manager = TextManager.instance()
+        return text_manager.font_divisor_map[font_type]
 
     def _load_font(self, font_type: str = FONT_DEFAULT, size: int = 18):
         if size not in self.fonts_by_size:
@@ -163,7 +174,7 @@ def write_into_region(
     # Default case is central align.
     ix = region.x - b_width // 2
     iy = region.y - i_height // 2
-    ty = region.y - t_height // 2
+    ty = region.y - int(t_height / TextManager.instance().get_font_divisor(font_type))
     tx = region.x - t_width // 2
 
     # Left align case.
@@ -200,20 +211,18 @@ def write_into_region(
 
 def center_at_position(image: np.array, text: str, x: int = 0, y: int = 0, width: int = None, height: int = None,
                        icon: str = None, pad: int = DEFAULT_PAD, font_type: str = FONT_DEFAULT, font_size: int = 18,
-                       color=(255, 255, 255), bg_color=(0, 0, 0), bg_opacity=0.5, ):
+                       color=(255, 255, 255), bg_color=(0, 0, 0), bg_opacity=0.5, overlay: bool=False):
     return write_at_position(image=image, text=text, x=x, y=y, width=width, height=height, icon=icon, pad=pad,
                              h_align=ALIGN_CENTER, font_type=font_type, font_size=font_size, color=color,
-                             bg_color=bg_color,
-                             bg_opacity=bg_opacity)
+                             bg_color=bg_color, bg_opacity=bg_opacity, overlay=overlay)
 
 
 def left_at_position(image: np.array, text: str, x: int = 0, y: int = 0, width: int = None, height: int = None,
                      icon: str = None, pad: int = DEFAULT_PAD, font_type: str = FONT_DEFAULT, font_size: int = 18,
-                     color=(255, 255, 255), bg_color=(0, 0, 0), bg_opacity=0.5, ):
+                     color=(255, 255, 255), bg_color=(0, 0, 0), bg_opacity=0.5, overlay: bool=False):
     return write_at_position(image=image, text=text, x=x, y=y, width=width, height=height, icon=icon, pad=pad,
                              h_align=ALIGN_LEFT, font_type=font_type, font_size=font_size, color=color,
-                             bg_color=bg_color,
-                             bg_opacity=bg_opacity)
+                             bg_color=bg_color, bg_opacity=bg_opacity, overlay=overlay)
 
 
 def write_at_position(
@@ -231,6 +240,7 @@ def write_at_position(
         color=(255, 255, 255),
         bg_color=None,
         bg_opacity=1.0,
+        overlay: bool=False
 ):
     """ Create a center-locked region, with the specified width and height. """
     region: Region = Region(0, 10, 0, 10)
@@ -261,14 +271,15 @@ def write_at_position(
     # Draw the text.
     image = write_into_region(image=image, text=text, region=region, icon=icon, pad=pad, h_align=h_align,
                               font_type=font_type, font_size=font_size, color=color, bg_color=bg_color,
-                              bg_opacity=bg_opacity, show_region_outline=False, fixed_width=is_fixed_width)
+                              bg_opacity=bg_opacity, show_region_outline=False, fixed_width=is_fixed_width,
+                              overlay=overlay)
 
     return image
 
 
 def write_anchored(image: np.array, text: str, h_anchor: int = ALIGN_CENTER, v_anchor: int = ALIGN_CENTER,
                    icon: str = None, pad: int = DEFAULT_PAD, font_type: str = FONT_DEFAULT, font_size: int = 18,
-                   color=(255, 255, 255), bg_color=(0, 0, 0), bg_opacity=1.0):
+                   color=(255, 255, 255), bg_color=(0, 0, 0), bg_opacity=1.0, overlay: bool = False):
     """ Find the anchored region and create a text box there. """
 
     image_width = image.shape[1]
@@ -294,8 +305,7 @@ def write_anchored(image: np.array, text: str, h_anchor: int = ALIGN_CENTER, v_a
 
     return write_at_position(image=image, text=text, x=x, y=y, width=None, height=None, icon=icon, pad=pad,
                              h_align=h_anchor, font_type=font_type, font_size=font_size, color=color,
-                             bg_color=bg_color,
-                             bg_opacity=bg_opacity)
+                             bg_color=bg_color, bg_opacity=bg_opacity, overlay=overlay)
 
 
 def label_region(image: np.array, text: str, region: Region, icon: str = None, pad: int = 5, gap: int = 5,
