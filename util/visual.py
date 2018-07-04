@@ -91,11 +91,9 @@ def draw_region_mask(image: np.array, regions: List[Region], strength: float = 1
         neg_mask[r.top:r.bottom, r.left:r.right] = False
 
     fade_factor = 1.0 - (0.7 * strength)
-    print(fade_factor)
     image[neg_mask] *= fade_factor
     image = image.astype(np.uint8)
     return image
-    pass
 
 
 # ======================================================================================================================
