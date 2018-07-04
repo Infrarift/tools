@@ -25,6 +25,8 @@ class TrackletGroup:
     ANIM_SHOW_MAX = 10
     ANIM_KILL_MAX = 10
 
+    BLUE_FADE = True
+
     def __init__(self):
         self.tracklets: List[Tracklet] = []
 
@@ -87,6 +89,8 @@ class TrackletGroup:
 
     def get_display_region(self):
         last_region = self.tracklets[-1].display_region.clone()
+        if self.lost:
+            last_region.data["color"] = self._get_kill_animation_color()
         return last_region
 
     def step_kill_animation(self):
@@ -94,4 +98,33 @@ class TrackletGroup:
 
         if self.anim_kill_counter >= self.ANIM_KILL_MAX:
             self.kill_finished = True
+
+    def _get_kill_animation_color(self):
+
+        black = (0, 0, 0)
+        progress = self.anim_kill_counter / self.ANIM_KILL_MAX
+
+        if self.BLUE_FADE:
+            return self._lerp_color((200, 75, 15), black, progress)
+        else:
+            pink = (80, 30, 255)
+            red = (0, 0, 255)
+            if progress < 0.5:
+                if self.anim_kill_counter % 2 == 0:
+                    return pink
+                else:
+                    return 0, 0, 100
+            else:
+                return self._lerp_color(red, black, progress)
+
+    # TODO: Split this out into another module.
+
+    def _lerp_color(self, c1, c2, factor: float):
+        new_color = []
+        for i in range(3):
+            new_color.append(int(self.lerp(c1[i], c2[i], factor)))
+        return new_color
+
+    def lerp(self, f1: float, f2: float, factor: float):
+        return f1 + (f2 - f1) * factor
 

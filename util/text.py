@@ -135,6 +135,21 @@ def raw_icon(
     return raw_text(image, text, x, y, font_type=FONT_ICON, font_size=font_size, color=color)
 
 
+def write_icon(
+        image: np.array,
+        text: str,
+        x: int,
+        y: int,
+        font_size: int = 18,
+        color=(255, 255, 255)
+):
+    """ Write a centered icon at the specific location. """
+    i_width, i_height = get_text_size(text, FONT_ICON, font_size)
+    x -= i_width // 2
+    y -= i_height // 2
+    return raw_text(image, text, x, y, font_type=FONT_ICON, font_size=font_size, color=color)
+
+
 def write_into_region(
         image: np.array,
         text: str,
