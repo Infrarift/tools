@@ -11,18 +11,24 @@ __email__ = "juangbhanich.k@gmail.com"
 
 
 class Tracklet:
-    def __init__(self, region: TrackingRegion):
+    def __init__(self, region: TrackingRegion=None):
         # Basic tracking parameters.
         self.frame = 0
         self.raw_region: TrackingRegion = None
         self.display_region: TrackingRegion = None
-        self.set_region(region)
+
+        self.vx = 0
+        self.vy = 0
+
+        if region is not None:
+            self.set_region(region)
 
     def set_region(self, region: TrackingRegion):
-        self.raw_region = region
-        self.display_region = region.clone()
-        self.display_region.expand_to_ratio(1.0)
-        self.display_region.scale(1.5)
+        if region is not None:
+            self.raw_region = region
+            self.display_region = region.clone()
+            self.display_region.expand_to_ratio(1.0)
+            self.display_region.scale(1.5)
 
     @property
     def x(self):
