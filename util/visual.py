@@ -87,8 +87,12 @@ def draw_region_mask(image: np.array, regions: List[Region], strength: float = 1
     neg_mask = np.ones((image.shape[0], image.shape[1]), dtype=np.bool)
 
     for r in regions:
-        pos_mask[r.top:r.bottom, r.left:r.right] = True
-        neg_mask[r.top:r.bottom, r.left:r.right] = False
+
+        safe_left, safe_right, _ = _get_safe_bounds(r.left, r.right, image.shape[1])
+        safe_top, safe_bottom, _ = _get_safe_bounds(r.top, r.bottom, image.shape[0])
+
+        pos_mask[safe_top:safe_bottom, safe_left:safe_right] = True
+        neg_mask[safe_top:safe_bottom, safe_left:safe_right] = False
 
     fade_factor = 1.0 - (0.7 * strength)
     image[neg_mask] *= fade_factor

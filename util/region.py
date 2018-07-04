@@ -3,6 +3,7 @@
 """
 A region is essentially a rectangle with some extra functionality. I've made it so the attributes will update each other.
 """
+import math
 
 __author__ = "Jakrin Juangbhanich"
 __email__ = "juangbhanich.k@gmail.com"
@@ -97,6 +98,25 @@ class Region:
         self._top = self._y - half_height
         self._bottom = self._y + half_height
 
+    def clone(self) -> 'Region':
+        region = Region()
+        region.set_rect(self.left, self.right, self.top, self.bottom)
+        return region
+
+    def expand_to_ratio(self, aspect_ratio: float = 1.0):
+
+        aspect_width = self.height // aspect_ratio
+        aspect_height = self.width // aspect_ratio
+
+        if aspect_width > self.width:
+            self.width = int(aspect_width)
+        elif aspect_height > self.height:
+            self.height = int(aspect_height)
+
+    def scale(self, scale_value: float=1.0):
+        self.width = int(self.width * scale_value)
+        self.height = int(self.height * scale_value)
+
     # ======================================================================================================================
     # Property setters for our attributes.
     # ======================================================================================================================
@@ -174,13 +194,25 @@ class Region:
         self._calibrate_to_xy()
 
     @property
+    def biggest_edge(self) -> int:
+        """ Returns the size of the biggest edge, either width or height. """
+        return max(self.height, self.width)
+
+    @property
     def area(self):
         return self.width * self.height
 
-    def clone(self) -> 'Region':
-        region = Region()
-        region.set_rect(self.left, self.right, self.top, self.bottom)
-        return region
-    
+    # ======================================================================================================================
+    # Global Utility Functions.
+    # ======================================================================================================================
 
+    @staticmethod
+    def distance(r1: 'Region', r2: 'Region'):
+        """ Calculate distance between the x and y of the two regions."""
+        return math.sqrt((r2.x - r1.x) ** 2 + (r2.y - r1.y) ** 2)
+
+    @staticmethod
+    def fast_distance(r1: 'Region', r2: 'Region'):
+        """ A quicker way of calculating approximate distance. Lower accuracy but faster results."""
+        return abs(r1.x - r2.x) + abs(r1.y - r2.y)
 
