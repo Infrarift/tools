@@ -58,7 +58,7 @@ class TextManager:
 
         self.font_divisor_map: Dict[str, float] = {
             # Some fonts need a bit more y-offset to look vertically aligned.
-            FONT_DEFAULT: 1.7,
+            FONT_DEFAULT: 1.6,
             FONT_ICON: 2.0
         }
 
