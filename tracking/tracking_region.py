@@ -14,12 +14,12 @@ class TrackingRegion(Region):
 
     def __init__(self, left=0, right=0, top=0, bottom=0):
         super().__init__(left, right, top, bottom)
-
         self.confidence: float = 0.0
         self.label: str = None
         self.data: dict = {}  # Arbitrary data pointer.
 
     def clone(self) -> 'TrackingRegion':
+        """ Overload the clone function to include all the new data. """
         region = TrackingRegion()
         region.set_rect(self.left, self.right, self.top, self.bottom)
         region.confidence = self.confidence
