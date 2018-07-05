@@ -17,9 +17,6 @@ class Tracklet:
         self.raw_region: TrackingRegion = None
         self.display_region: TrackingRegion = None
 
-        self.vx = 0
-        self.vy = 0
-
         if region is not None:
             self.set_region(region)
 
