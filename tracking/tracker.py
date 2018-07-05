@@ -23,7 +23,7 @@ class TrackletPair:
 
 class Tracker:
 
-    REACH = 3.5
+    REACH = 1.5
 
     def __init__(self):
         self.tracklet_groups: List[TrackletGroup] = []

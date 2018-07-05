@@ -54,29 +54,12 @@ class TrackletGroup:
             tracklet.width = tracklet.width * self.S_FILTER + pt.width * self.R_S_FILTER
             tracklet.height = tracklet.height * self.S_FILTER + pt.height * self.R_S_FILTER
 
-            tracklet.vx = tracklet.x - pt.x
-            tracklet.vy = tracklet.y - pt.y
-            tracklet.vx = tracklet.vx * self.V_FILTER + pt.vx * self.R_V_FILTER
-            tracklet.vy = tracklet.vy * self.V_FILTER + pt.vy * self.R_V_FILTER
-
         self.tracklets.append(tracklet)
         self.register(hit=hit)
-
-    def predict(self):
-        pt: Tracklet = self.tracklets[-1]
-        tracklet = Tracklet(None)
-        tracklet.display_region = pt.display_region.clone()
-        tracklet.vx = pt.vx
-        tracklet.vy = pt.vy
-        tracklet.display_region.x += int(pt.vx)
-        tracklet.display_region.y += int(pt.vy)
-        tracklet.raw_region = tracklet.display_region
-        self.tracklets.append(tracklet)
 
     def register(self, hit: bool=True):
 
         if self.lost:
-            self.predict()
             self.step_kill_animation()
             return
 
@@ -85,7 +68,6 @@ class TrackletGroup:
             self.misses = 0
         else:
             # Create a ghost to push this next detection box onward.
-            self.predict()
             self.misses += 1
             self.hits = 0
 
