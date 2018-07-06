@@ -37,6 +37,9 @@ class Tracker:
     def get_lost_regions(self) -> List[TrackingRegion]:
         return [t.display_region for t in self.active_tracks if t.is_lost]
 
+    def get_raw_regions(self) -> List[TrackingRegion]:
+        return [t.raw_region for t in self.active_tracks if t.is_recent]
+
     @staticmethod
     def _covert_to_tracklets(regions: List[TrackingRegion], frame_index: int = 0) -> List[Tracklet]:
         """ Convert from TrackingRegions to a list of Tracklets. """

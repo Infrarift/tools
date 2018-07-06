@@ -30,7 +30,7 @@ class TrackletGroup:
     _ANIM_SHOW_MAX = 10
     _ANIM_KILL_MAX = 10
 
-    def __init__(self, hit_limit: int = 3, miss_limit: int = 7, color: Tuple = (255, 255, 255)):
+    def __init__(self, hit_limit: int = 3, miss_limit: int = 7, color: Tuple = (255, 255, 255), red_fade: bool=False):
         self.tracklets: List[Tracklet] = []
 
         # TODO: We should probably allow this for config passing.
@@ -52,7 +52,7 @@ class TrackletGroup:
         self._anim_show_counter: int = 0
         self._anim_kill_counter: int = 0
         self._color = color
-        self._red_fade: bool = False  # Fade using the red animation.
+        self._red_fade: bool = red_fade  # Fade using the red animation.
         self.visual_state: VisualState = VisualState.NORMAL
 
     # ===================================================================================================
@@ -154,9 +154,22 @@ class TrackletGroup:
     def last_tracklet(self) -> Tracklet:
         return self.tracklets[-1]
 
+    @property
+    def miss_limit(self) -> int:
+        return self._miss_limit
+
+    @property
+    def hit_limit(self) -> int:
+        return self._hit_limit
+
     # ======================================================================================================================
     # Visual and animation functions.
     # ======================================================================================================================
+
+    @property
+    def raw_region(self):
+        """ Get the latest raw region of this group. """
+        return self.last_tracklet.raw_region.clone()
 
     @property
     def display_region(self):

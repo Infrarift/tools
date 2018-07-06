@@ -67,7 +67,7 @@ class ProximityTracker(Tracker):
         # Add all the un-merged detections.
         for tracklet in new_tracklets:
             if tracklet not in merged:
-                tracklet_group: TrackletGroup = TrackletGroup(color=(255, 150, 30))
+                tracklet_group: TrackletGroup = TrackletGroup(color=(255, 150, 30), red_fade=True)
                 tracklet_group.add(tracklet)
                 self.active_tracks.append(tracklet_group)
                 self.all_tracks.append(tracklet_group)
