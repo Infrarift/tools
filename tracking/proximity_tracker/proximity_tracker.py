@@ -31,7 +31,7 @@ class ProximityTracker(Tracker):
         super().__init__()
 
     def process(self, regions: List[TrackingRegion], frame_index: int = 0):
-        new_tracklets = self._covert_to_tracklets(regions, frame_index)
+        new_tracklets = self._covert_to_tracklets(regions, frame_index, ratio_lock=1.0, scale_factor=1.5)
 
         # Compare each detection to each other, and make a list of them.
         tracklet_pairs: List[TrackletPair] = []
