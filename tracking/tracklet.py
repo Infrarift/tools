@@ -11,8 +11,10 @@ __email__ = "juangbhanich.k@gmail.com"
 
 
 class Tracklet:
-    def __init__(self, region: TrackingRegion=None):
+    def __init__(self, region: TrackingRegion=None, ratio_lock: float=0.0, scale_factor: float=1.0):
         # Basic tracking parameters.
+        self.scale_factor = scale_factor
+        self.ratio_lock = ratio_lock
         self.frame = 0
         self.raw_region: TrackingRegion = None
         self.display_region: TrackingRegion = None
@@ -24,8 +26,9 @@ class Tracklet:
         if region is not None:
             self.raw_region = region
             self.display_region = region.clone()
-            self.display_region.expand_to_ratio(1.0)
-            self.display_region.scale(1.5)
+            if self.ratio_lock != 0:
+                self.display_region.expand_to_ratio(self.ratio_lock)
+            self.display_region.scale(self.scale_factor)
 
     @property
     def x(self):

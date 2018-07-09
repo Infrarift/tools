@@ -3,6 +3,7 @@
 """
 A region is essentially a rectangle with some extra functionality. I've made it so the attributes will update each other.
 """
+
 import math
 
 __author__ = "Jakrin Juangbhanich"
@@ -10,7 +11,7 @@ __email__ = "juangbhanich.k@gmail.com"
 
 
 class Region:
-    def __init__(self, left=0, right=0, top=0, bottom=0):
+    def __init__(self, left=0, right=0, top=0, bottom=0, force_int: bool = True):
 
         # Rect. Origin (0, 0) is top-left.
         self._left = 0
@@ -25,6 +26,9 @@ class Region:
         # Scale
         self._width = 0
         self._height = 0
+
+        # Data
+        self._force_int = force_int
 
         # Initialize
         self.set_rect(left, right, top, bottom)
@@ -80,17 +84,35 @@ class Region:
             return False
         return True
 
+    def convert_to_int(self) -> None:
+        self._width = int(self._width)
+        self._height = int(self._height)
+        self._left = int(self._left)
+        self._right = int(self._right)
+        self._top = int(self._top)
+        self._bottom = int(self._bottom)
+        self._x = int(self._x)
+        self._y = int(self._y)
+
     # ======================================================================================================================
     # Private calibration functions.
     # ======================================================================================================================
 
     def _calibrate_to_rect(self) -> None:
+
+        if self._force_int:
+            self.convert_to_int()
+
         self._width = self._right - self._left
         self._height = self._bottom - self._top
         self._x = self._left + self._width // 2
         self._y = self._top + self._height // 2
 
     def _calibrate_to_xy(self) -> None:
+        
+        if self._force_int:
+            self.convert_to_int()
+            
         half_width = self._width // 2
         half_height = self._height // 2
         self._left = self._x - half_width
@@ -99,7 +121,7 @@ class Region:
         self._bottom = self._y + half_height
 
     def clone(self) -> 'Region':
-        region = Region()
+        region = Region(force_int=self._force_int)
         region.set_rect(self.left, self.right, self.top, self.bottom)
         return region
 
@@ -113,7 +135,7 @@ class Region:
         elif aspect_height > self.height:
             self.height = int(aspect_height)
 
-    def scale(self, scale_value: float=1.0):
+    def scale(self, scale_value: float = 1.0):
         self.width = int(self.width * scale_value)
         self.height = int(self.height * scale_value)
 
@@ -215,4 +237,3 @@ class Region:
     def fast_distance(r1: 'Region', r2: 'Region'):
         """ A quicker way of calculating approximate distance. Lower accuracy but faster results."""
         return abs(r1.x - r2.x) + abs(r1.y - r2.y)
-
