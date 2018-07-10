@@ -73,6 +73,5 @@ class ProximityTracker(Tracker):
                 self.all_tracklets.append(tracklet)
 
         # Prune the list of all the tracks.
-        keep_groups = [t for t in self.active_tracklets if not t.is_lost or t.is_displayable]
-        self.active_tracklets = keep_groups
+        self.remove_dead_tracklets()
 

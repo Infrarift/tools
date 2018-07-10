@@ -28,6 +28,10 @@ class Tracker:
     def process(self, regions: List[TrackingRegion], frame_index: int = 0):
         pass
 
+    def remove_dead_tracklets(self) -> None:
+        """ Get rid of the tracklets that we don't need anymore. """
+        self.active_tracklets = [t for t in self.active_tracklets if not t.is_lost or t.is_displayable]
+
     def get_live_tracklets(self) -> List[Tracklet]:
         return self.active_tracklets
 
