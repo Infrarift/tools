@@ -88,8 +88,8 @@ def draw_region_mask(image: np.array, regions: List[Region], strength: float = 1
 
     for r in regions:
 
-        safe_left, safe_right, _ = _get_safe_bounds(r.left, r.right, image.shape[1])
-        safe_top, safe_bottom, _ = _get_safe_bounds(r.top, r.bottom, image.shape[0])
+        safe_left, safe_right, _, _ = _get_safe_bounds(r.left, r.right, image.shape[1])
+        safe_top, safe_bottom, _, _ = _get_safe_bounds(r.top, r.bottom, image.shape[0])
 
         pos_mask[safe_top:safe_bottom, safe_left:safe_right] = True
         neg_mask[safe_top:safe_bottom, safe_left:safe_right] = False
@@ -128,28 +128,34 @@ def draw_bar_segment(image, p_start: float, p_end: float, x: int, y: int, width:
 # ===================================================================================================
 
 
-def _get_safe_bounds(near: int, far: int, max_bound: int) -> (int, int, int):
+def _get_safe_bounds(near: int, far: int, max_bound: int) -> (int, int, int, int):
     """ Finds the near/far bounds (such as left, right) for a certain max bound (width, etc). """
     safe_near = max(0, near)
     safe_far = min(max_bound, far)
     near_excess = safe_near - near
-    return safe_near, safe_far, near_excess
+    far_excess = far - safe_far
+    return safe_near, safe_far, near_excess, far_excess
 
 
 def safe_extract(image: np.array, left: int, right: int, top: int, bottom: int):
     """ Extract the specified area from the image, padding the over-cropped areas with black.
     Assumes a np.array (CV2 image) input format. """
 
-    # Get the extraction area.
-    safe_left, safe_right, left_excess = _get_safe_bounds(left, right, image.shape[1])
-    safe_top, safe_bottom, top_excess = _get_safe_bounds(top, bottom, image.shape[0])
+    safe_left, safe_right, left_excess, right_excess = _get_safe_bounds(left, right, image.shape[1])
+    safe_top, safe_bottom, top_excess, bottom_excess = _get_safe_bounds(top, bottom, image.shape[0])
 
     # Extract the image.
     extracted_image = image[safe_top:safe_bottom, safe_left:safe_right]
 
+    # Get the extraction area.
+    h = bottom - top
+    w = right - left
+
     # Fill the excess area with black.
     filler = np.zeros((bottom - top, right - left, 3), dtype=np.uint8)
-    filler[top_excess:top_excess + safe_bottom, left_excess:left_excess + safe_right] = extracted_image
+    insert_bottom = top_excess + h - bottom_excess
+    insert_right = left_excess + w - right_excess
+    filler[top_excess:insert_bottom, left_excess:insert_right] = extracted_image
     return filler
 
 
@@ -157,8 +163,8 @@ def safe_implant(dst_image: np.array, src_image: np.array, left: int, right: int
     """ Plant the area from the src image into the dst image. """
 
     # Get the extraction area.
-    safe_left, safe_right, left_excess = _get_safe_bounds(left, right, dst_image.shape[1])
-    safe_top, safe_bottom, top_excess = _get_safe_bounds(top, bottom, dst_image.shape[0])
+    safe_left, safe_right, left_excess, right_excess = _get_safe_bounds(left, right, dst_image.shape[1])
+    safe_top, safe_bottom, top_excess, bottom_excess = _get_safe_bounds(top, bottom, dst_image.shape[0])
 
     dst_image[safe_top:safe_bottom, safe_left:safe_right] = \
         src_image[top_excess:top_excess + safe_bottom, left_excess:left_excess + safe_right]

@@ -30,7 +30,8 @@ class Tracklet:
     _ANIM_SHOW_MAX = 10
     _ANIM_KILL_MAX = 10
 
-    def __init__(self, hit_limit: int = 3, miss_limit: int = 7, color: Tuple = (255, 255, 255), red_fade: bool=False):
+    def __init__(self, hit_limit: int = 3, miss_limit: int = 7,
+                 color: Tuple = (255, 255, 255), red_fade: bool=False):
         self.track_frames: List[TrackFrame] = []
 
         # TODO: We should probably allow this for config passing.
@@ -54,6 +55,8 @@ class Tracklet:
         self._color = color
         self._red_fade: bool = red_fade  # Fade using the red animation.
         self.visual_state: VisualState = VisualState.NORMAL
+
+        self.image = None
 
     # ===================================================================================================
     # Core Public Functions.

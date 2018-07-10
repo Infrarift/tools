@@ -9,6 +9,9 @@ from typing import List
 from tools.tracking.tracking_region import TrackingRegion
 from tools.tracking.track_frame import TrackFrame
 from tools.tracking.tracklet import Tracklet
+import numpy as np
+
+from tools.util import visual
 
 __author__ = "Jakrin Juangbhanich"
 __email__ = "juangbhanich.k@gmail.com"
@@ -27,6 +30,11 @@ class Tracker:
     @abstractmethod
     def process(self, regions: List[TrackingRegion], frame_index: int = 0):
         pass
+
+    def save_image(self, frame: np.array):
+        for tracklet in self.active_tracklets:
+            if tracklet.is_recent and tracklet.image is None and tracklet.is_live:
+                tracklet.image = visual.safe_extract_with_region(frame, tracklet.display_region)
 
     def remove_dead_tracklets(self) -> None:
         """ Get rid of the tracklets that we don't need anymore. """
