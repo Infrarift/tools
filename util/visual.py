@@ -60,21 +60,23 @@ def draw_regions(image: np.array,
     return image
 
 
-def pixelate_region(image: np.array, regions: List[Region]):
-    blur_factor = 0.1
-
+def pixelate_region(image: np.array, regions: List[Region], blur_factor: float=0.1):
     for r in regions:
-        target_image = image[r.top:r.bottom, r.left:r.right]
-        h = target_image.shape[0]
-        w = target_image.shape[1]
+        try:
+            target_image = safe_extract(image, r.left, r.right, r.top, r.bottom)
+            h = target_image.shape[0]
+            w = target_image.shape[1]
 
-        pixel_h = max(1, int(h * blur_factor))
-        pixel_w = max(1, int(w * blur_factor))
+            pixel_h = max(1, int(h * blur_factor))
+            pixel_w = max(1, int(w * blur_factor))
 
-        target_image = cv2.resize(target_image, (pixel_w, pixel_h),
-                                  interpolation=cv2.INTER_NEAREST)
-        target_image = cv2.resize(target_image, (w, h), interpolation=cv2.INTER_NEAREST)
-        image[r.top:r.bottom, r.left:r.right] = target_image
+            target_image = cv2.resize(target_image, (pixel_w, pixel_h),
+                                      interpolation=cv2.INTER_NEAREST)
+            target_image = cv2.resize(target_image, (w, h), interpolation=cv2.INTER_NEAREST)
+            image = safe_implant(image, target_image, r.left, r.right, r.top, r.bottom)
+
+        except Exception as e:
+            print(e)
 
     return image
 
@@ -166,8 +168,11 @@ def safe_implant(dst_image: np.array, src_image: np.array, left: int, right: int
     safe_left, safe_right, left_excess, right_excess = _get_safe_bounds(left, right, dst_image.shape[1])
     safe_top, safe_bottom, top_excess, bottom_excess = _get_safe_bounds(top, bottom, dst_image.shape[0])
 
+    s_bottom = top_excess + (safe_bottom - safe_top)
+    s_right = left_excess + (safe_right - safe_left)
+
     dst_image[safe_top:safe_bottom, safe_left:safe_right] = \
-        src_image[top_excess:top_excess + safe_bottom, left_excess:left_excess + safe_right]
+        src_image[top_excess:s_bottom, left_excess:s_right]
 
     return dst_image
 
