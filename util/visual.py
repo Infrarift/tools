@@ -19,13 +19,22 @@ __email__ = "juangbhanich.k@gmail.com"
 # ======================================================================================================================
 
 
-def generate_colors(n, saturation: float = 1.0, brightness: float = 1.0):
+def generate_colors(n,
+                    saturation: float = 1.0,
+                    brightness: float = 1.0,
+                    hue_offset: float = 0.0,
+                    hue_range: float = 1.0,
+                    as_numpy: bool=False):
     """ Generate N amount of colors spread across a range on the HSV scale.
     Will return it in a numpy format. """
-    hsv = [(i / n, saturation, brightness) for i in range(n)]
+    hsv = [(hue_offset + hue_range * (i / n), saturation, brightness) for i in range(n)]
     colors_raw = list(map(lambda c: colorsys.hsv_to_rgb(*c), hsv))
     colors = np.array(colors_raw)
     colors *= 255
+
+    if not as_numpy:
+        colors = [(int(c[0]), int(c[1]), int(c[2])) for c in colors]
+
     return colors
 
 
@@ -42,20 +51,19 @@ def draw_regions(image: np.array,
                  thickness: int = 2,
                  overlay: bool = False,
                  strength: float = 1.0):
-    target_image = image
 
-    if overlay:
-        overlay_image = np.zeros_like(image, np.uint8)
-        target_image = overlay_image
+    overlay_image = np.zeros_like(image, np.uint8) if overlay else np.copy(image)
 
     for i in range(len(regions)):
         r = regions[i]
-        cv2.rectangle(target_image, (r.left, r.top), (r.right, r.bottom),
+        cv2.rectangle(overlay_image, (r.left, r.top), (r.right, r.bottom),
                       color=color,
                       thickness=thickness)
 
     if overlay:
         image = cv2.addWeighted(image, 1.0, overlay_image, strength, 0.0)
+    else:
+        image = cv2.addWeighted(image, 1.0 - strength, overlay_image, strength, 0.0)
 
     return image
 

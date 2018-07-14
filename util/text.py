@@ -325,7 +325,8 @@ def write_anchored(image: np.array, text: str, h_anchor: int = ALIGN_CENTER, v_a
 
 def label_region(image: np.array, text: str, region: Region, icon: str = None, pad: int = 5, gap: int = 5,
                  font_type: str = FONT_DEFAULT, font_size: int = 14, show_at_bottom: bool=False,
-                 color=(255, 255, 255), bg_color=(0, 0, 0), bg_opacity: float = 0.7, overlay: bool = False):
+                 color=(255, 255, 255), bg_color=(0, 0, 0), bg_opacity: float = 0.7, overlay: bool = False,
+                 inside: bool=False):
 
     # Find the text, icon and box positions.
     t_width, t_height, i_width, i_height, b_width, b_height = \
@@ -334,11 +335,20 @@ def label_region(image: np.array, text: str, region: Region, icon: str = None, p
     draw_region: Region = region.clone()
     draw_region.height = b_height + pad * 2
 
+    if inside:
+        draw_region.width -= gap * 2
+
+    if draw_region.width < b_width + pad * 2:
+        draw_region.width = b_width + pad * 2
+
+    draw_direction = -1 if inside else 1
+    draw_anchor = draw_region.height // 2 + gap
+
     # Find the place to draw, relative to the region label.
     if not show_at_bottom:
-        y = region.top - draw_region.height // 2 - gap
+        y = region.top - (draw_direction * draw_anchor)
     else:
-        y = region.bottom + draw_region.height // 2 + gap
+        y = region.bottom + (draw_direction * draw_anchor)
 
     draw_region.y = y
 
