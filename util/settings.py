@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
 """
-cluster-node | settings | 10/05/18
-Meant to be used as a super-class, to load in attributes from the environment.
+Abstract class for importing YAML file settings into a Python format.
 """
 
 import json
 import os
-from dotenv import load_dotenv
+import shutil
+
+import yaml
 from .logger import Logger
 
 __author__ = "Jakrin Juangbhanich"
@@ -16,33 +17,34 @@ __email__ = "juangbhanich.k@gmail.com"
 
 class Settings:
 
-    DOT_ENV_LOADED: bool = False
-
     def __init__(self):
         pass
 
-    @staticmethod
-    def _load_dotenv():
-        """ Load the default .env file if it hasn't already been loaded."""
-        if Settings.DOT_ENV_LOADED:
-            return
-        load_dotenv(dotenv_path=".env")
+    def load(self, path: str):
 
-    def load(self):
         """ Look for the matching attributes in the .env and set them here. """
 
-        self._load_dotenv()
+        # Copy the example file if the real file doesn't exist yet.
+        if not os.path.exists(path):
+            example_path = path.replace(".", "-example.")
+            Logger.log("{} does not exist. Will copy the sample from {}.".format(path, example_path))
+            shutil.copy2(example_path, path)
+
+        # Read YAML file.
+        with open(path, 'r') as stream:
+            data = yaml.load(stream)
+
         Logger.log_special("Load Settings for {}".format(self.__class__.__name__), with_gap=True)
 
         for attribute in self.__dict__:
             if not hasattr(self, attribute):
                 continue
 
-            if attribute not in os.environ:
+            if attribute not in data:
                 Logger.log_field_red("{} (Default)".format(attribute), getattr(self, attribute))
                 continue
 
-            env_val = os.environ[attribute]
+            env_val = data[attribute]
             attr_type = type(getattr(self, attribute))
 
             if attr_type is int:
