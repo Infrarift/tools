@@ -34,7 +34,7 @@ class Settings:
         with open(path, 'r') as stream:
             data = yaml.load(stream)
 
-        Logger.log_special("Load Settings for {}".format(self.__class__.__name__), with_gap=True)
+        Logger.log_special("Load {}".format(self.__class__.__name__), with_gap=True)
 
         for attribute in self.__dict__:
             if not hasattr(self, attribute):
