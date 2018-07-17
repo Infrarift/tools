@@ -158,13 +158,16 @@ def safe_extract(image: np.array, left: int, right: int, top: int, bottom: int):
     extracted_image = image[safe_top:safe_bottom, safe_left:safe_right]
 
     # Get the extraction area.
-    h = bottom - top
-    w = right - left
+    h = safe_bottom - safe_top
+    w = safe_right - safe_left
 
     # Fill the excess area with black.
     filler = np.zeros((bottom - top, right - left, 3), dtype=np.uint8)
-    insert_bottom = top_excess + h - bottom_excess
-    insert_right = left_excess + w - right_excess
+    insert_bottom = top_excess + h
+    insert_right = left_excess + w
+    print("")
+    print(left_excess, insert_right, w)
+    print(top_excess, insert_bottom, h)
     filler[top_excess:insert_bottom, left_excess:insert_right] = extracted_image
     return filler
 
