@@ -34,14 +34,14 @@ class Settings:
         with open(path, 'r') as stream:
             data = yaml.load(stream)
 
-        Logger.log_special("Load {}".format(self.__class__.__name__), with_gap=True)
+        Logger.special("Load {}".format(self.__class__.__name__), with_gap=True)
 
         for attribute in self.__dict__:
             if not hasattr(self, attribute):
                 continue
 
             if attribute not in data:
-                Logger.log_field_red("{} (Default)".format(attribute), getattr(self, attribute))
+                Logger.field("{} (Default)".format(attribute), getattr(self, attribute))
                 continue
 
             env_val = data[attribute]
@@ -71,5 +71,5 @@ class Settings:
                     "Could not set attribute on settings object, the attribute {} has an unsupported type {}"
                     .format(attribute, attr_type.__name__))
 
-            Logger.log_field(attribute, getattr(self, attribute))
+            Logger.field(attribute, getattr(self, attribute))
 
